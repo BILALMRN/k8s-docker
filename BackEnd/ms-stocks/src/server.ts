@@ -29,7 +29,7 @@ class App {
   }
 
   routes() {
-    this.server.use("/api/v1/stock", itemsRouter);
+    this.server.use("/v1/stock", itemsRouter);
   }
 }
 
