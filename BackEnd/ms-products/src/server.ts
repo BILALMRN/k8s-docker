@@ -10,7 +10,7 @@ if (!process.env.PORT) {
   throw new Error("PORT must be set");
 }
 
-const PORT: number = parseInt(process.env.PORT as string);
+const PORT: number = parseInt(process.env.PORT);
 
 const app = express();
 
