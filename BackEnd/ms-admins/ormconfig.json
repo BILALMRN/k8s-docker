@@ -1,0 +1,12 @@
+{
+    "type": "postgres", 
+"host": "localhost", 
+"port": 5432, 
+"username": "postgres", 
+"password": "secretpassword", 
+"database": "admins", 
+"entities": ["src/dataBase/sql/AdminEntity.ts"],
+ "migrationsTableName": "admin_migration_table", "migrations": ["src/dataBase/migration/*.ts"], "cli": { 
+   "migrationsDir": "src/dataBase/migration/" 
+}
+}
