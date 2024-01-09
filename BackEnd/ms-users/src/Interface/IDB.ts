@@ -1,4 +1,4 @@
-import {IUserDocument} from "../Models/userShema";
+import IUserDocument from "../type";
 
 
 interface IDB{
