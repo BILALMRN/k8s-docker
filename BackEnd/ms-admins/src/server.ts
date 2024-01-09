@@ -29,7 +29,7 @@ class App {
   }
 
   routes() {
-    this.server.use("/api/v1/admin", itemsRouter);
+    this.server.use("/v1/admin", itemsRouter);
   }
 }
 

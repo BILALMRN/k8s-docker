@@ -34,7 +34,7 @@ class App {
   }
 
   routes() {
-    app.use("/api/v1/product", itemsRouter);
+    app.use("/v1/product", itemsRouter);
   }
 }
 
