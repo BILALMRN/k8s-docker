@@ -38,7 +38,7 @@ class Account implements IAccount {
   async updateAccount(account: AdminEntity): Promise<AccountCreationResponse> {
     try {
       // Check if the account exists before updating
-      const existingAccount = await this.database.getAccount(account.admin_id);
+      const existingAccount = await this.database.getAccount(account.admin_id!);
   
       if (!existingAccount || existingAccount.admin_id !== account.admin_id) {
         throw new Error('Account not found');
@@ -89,5 +89,5 @@ class Account implements IAccount {
   }
 }
 
-const account = new Account(DataBase);
-export default account;
+const adminService:IAccount = new Account(DataBase);
+export default adminService;

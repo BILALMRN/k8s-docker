@@ -62,6 +62,10 @@ class DB implements IDB {
   }
 
   async updateAccount(account: AdminEntity): Promise<AdminEntity> {
+    const existingAccount = await this.getAccount(account.admin_id!);
+    if (!existingAccount) {
+      throw new Error("Account does not exist");
+    }
     await this.adminRepository.update(account.admin_id, account);
     return account;
   }

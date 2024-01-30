@@ -4,6 +4,9 @@ import { DataSource, Repository, MoreThan } from "typeorm";
 import Product from '../Models/Product';
 import * as dotenv from 'dotenv';
 import IDB from "../Interface/IDB";
+import { AdminEntity } from "../Models/Admin";
+import { Category } from "../Models/Category";
+import { PhotoProduct } from "../Models/ProductPhoto";
 
 dotenv.config();
 class DB implements IDB {
@@ -14,7 +17,7 @@ class DB implements IDB {
     this.connection = new DataSource({
       type: 'postgres',
       url: process.env.CONNECTION_STRING_POSTGRES_SQL,
-      entities: [Product],
+      entities: [Product,AdminEntity,Category,PhotoProduct],
       synchronize: true,
     });
     this.connection.initialize()

@@ -9,7 +9,7 @@ export default class Product {
     @PrimaryGeneratedColumn()
     product_id!: number;
 
-    @ManyToOne(() => AdminEntity)
+    @ManyToOne(() => AdminEntity, adminEntity => adminEntity.admin_id)
     admin!: AdminEntity;
 
     @Column()

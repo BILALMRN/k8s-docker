@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 @Entity('admins')
 export class AdminEntity {
   @PrimaryGeneratedColumn()
-  admin_id!: number;
+  admin_id?: number;
 
   @Column({ unique: true })
   username!: string;
@@ -42,6 +42,6 @@ export class AdminEntity {
   country?: string;
 
   @CreateDateColumn()
-  created_at!: Date;
+  created_at?: Date;
 
 }
