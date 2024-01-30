@@ -5,7 +5,8 @@ info:
   license: GPL-3.0 license
   version: 1.0.0
 servers:
-  - url: http://localhost:3000/v1/
+  - url: https://api.localhost/v1
+  - url: http://api.localhost:81/v1
 tags:
   - name: Admin
     description: Everything about your Admin
@@ -21,16 +22,22 @@ paths:
   /product:
     get:
       tags:
-       - Product
+        - Product
       summary: Get all products
       operationId: getProducts
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
 
     post:
       tags:
-       - Product
+        - Product
       summary: Create a new product
       operationId: createProduct
       requestBody:
@@ -40,11 +47,18 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
 
   /product/{id}:
     get:
       tags:
-       - Product
+        - Product
       summary: Get a product by ID
       operationId: getProduct
       parameters:
@@ -52,16 +66,20 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
         '404':
           description: Not Found
 
     delete:
       tags:
-       - Product
+        - Product
       summary: Delete a product by ID
       operationId: deleteProduct
       parameters:
@@ -69,25 +87,33 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         '204':
           description: No Content
+        '404':
+          description: Not Found
 
   /product/inStock:
     get:
       tags:
-       - Product
+        - Product
       summary: Get all available products in stock
       operationId: getAllAvailableProductsInStock
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
 
   /product/search/{nameProduct}:
     get:
       tags:
-       - Product
+        - Product
       summary: Search products by name
       operationId: searchProductFromDB
       parameters:
@@ -99,25 +125,37 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
         '404':
           description: Products not found
 
   /product/discounted:
     get:
       tags:
-       - Product
+        - Product
       summary: Get products with discount
       operationId: getProductsParDiscount
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
         '404':
           description: No products found
 
   /product/suggestion/{category}:
     get:
       tags:
-       - Product
+        - Product
       summary: Get product suggestions by category
       operationId: getSuggestion
       parameters:
@@ -129,13 +167,19 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
         '404':
           description: No suggested products found
 
   #####        
   /admin/{id}:
     get:
-      tags:  
+      tags:
         - Admin
       summary: Get admin account by ID
       operationId: getAccount
@@ -144,24 +188,51 @@ paths:
           in: path
           required: true
           schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                admin_id: 1
+                username: admin1
+                email: admin1@example.com
+
+  /admin/login:
+    post:
+      tags:
+        - Admin
+      summary: Log in to the admin account
+      operationId: loginAccount
+      parameters:
+        - name: username
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: header
+          required: true
+          schema:
             type: string
       responses:
         '200':
           description: OK
-
-  /admin/login:
-    get:
-      tags: 
-        - Admin
-      summary: Log in to the admin account
-      operationId: loginAccountUser
-      responses:
-        '200':
-          description: OK
+          content:
+            application/json:
+              example:
+                token: "your_token"
+        '404':
+          description: Account not found
+        '400':
+          description: Invalid headers
+        '500':
+          description: Internal Server Error
 
   /admin:
     post:
-      tags: 
+      tags:
         - Admin
       summary: Create a new admin account
       operationId: createAccount
@@ -171,102 +242,63 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-                email:
-                  type: string
-                urlPhotoProfile:
-                  type: string
-                coverPhoto:
-                  type: string
-                phone:
-                  type: string
-                address:
-                  type: string
-                city:
-                  type: string
-                zip:
-                  type: string
-                country:
-                  type: string
-              required:
-                - username
-                - password
-                - first_name
-                - last_name
-                - email
-              # Add other required fields as needed
+              $ref: '#/components/schemas/AdminEntity'
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              example:
+                admin_id: 1
+                username: admin1
+                email: admin1@example.com
 
     put:
-      tags: 
+      tags:
         - Admin
       summary: Update an admin account
       operationId: updateAccount
       requestBody:
-        description: Admin account details
+        description: Updated admin account details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEntity'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admin'
+        '404':
+          description: Not Found
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete an admin account
+      operationId: deleteAccount
+      requestBody:
+        description: Admin ID to delete
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                username:
-                  type: string
-                password:
-                  type: string
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-                email:
-                  type: string
-                urlPhotoProfile:
-                  type: string
-                coverPhoto:
-                  type: string
-                phone:
-                  type: string
-                address:
-                  type: string
-                city:
-                  type: string
-                zip:
-                  type: string
-                country:
-                  type: string
+                admin_id:
+                  type: integer
               required:
-                - username
-                - password
-                - first_name
-                - last_name
-                - email
-              # Add other required fields as needed
+                - admin_id
       responses:
         '200':
           description: OK
-        '404':
-          description: Not Found
-
-    delete:
-      tags: 
-        - Admin
-      summary: Delete an admin account
-      operationId: deleteAccount
-      responses:
-        '204':
-          description: No Content
-
+        '400':
+          description: Invalid 'id' parameter
+        '500':
+          description: Internal Server Error
 
 
 
@@ -283,6 +315,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ProductOrder'
+      responses:
+        '201':
+          description: Created
+        '500':
+          description: Internal Server Error
 
     put:
       tags: 
@@ -307,6 +344,11 @@ paths:
                   type: string
               required:
                 - status
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
 
     get:
       tags: 
@@ -328,6 +370,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ProductOrder'
+        '500':
+          description: Internal Server Error
 
   /Order/adminhistory:
     get:
@@ -344,10 +388,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ProductOrder'
+        '500':
+          description: Internal Server Error
+
+
 
   /stock/user:
     put:
-      tags: 
+      tags:
         - Stock
       summary: Update stock for a product (user)
       operationId: updateStockProductUser
@@ -371,7 +419,7 @@ paths:
 
   /stock/admin:
     put:
-      tags: 
+      tags:
         - Stock
       summary: Update stock for a product (admin)
       operationId: updateStockProductAdmin
@@ -399,7 +447,7 @@ paths:
 
   /user/{id}:
     get:
-      tags: 
+      tags:
         - User
       summary: Get account by ID
       operationId: getAccountById
@@ -418,11 +466,22 @@ paths:
                 $ref: '#/components/schemas/User'
 
   /user/login:
-    get:
-      tags: 
+    post:
+      tags:
         - User
       summary: Log in to the account
       operationId: loginAccount
+      parameters:
+        - name: email
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: header
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -430,9 +489,16 @@ paths:
             application/json:
               schema:
                 type: string
+        '404':
+          description: Account not found
+        '400':
+          description: Invalid headers
+        '500':
+          description: Internal Server Error
 
+  /user:
     post:
-      tags: 
+      tags:
         - User
       summary: Create a new account
       operationId: createAccount
@@ -446,9 +512,14 @@ paths:
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              example: 'create account'
+        '500':
+          description: Internal Server Error
 
     put:
-      tags: 
+      tags:
         - User
       summary: Update an account
       operationId: updateAccount
@@ -466,7 +537,7 @@ paths:
           description: Internal Server Error
 
     delete:
-      tags: 
+      tags:
         - User
       summary: Delete an account
       operationId: deleteAccount
@@ -488,6 +559,42 @@ paths:
 
 components:
   schemas:
+
+    AdminEntity:
+      type: object
+      properties:
+        username:
+          type: string
+        password_hash:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        urlPhotoProfile:
+          type: string
+        coverPhoto:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+      required:
+        - username
+        - password
+        - first_name
+        - last_name
+        - email
+
+
     User:
       type: object
       properties:
@@ -569,7 +676,7 @@ components:
         product_id:
           type: number
         admin:
-          $ref: '#/components/schemas/Admin'
+          type: number
         name_product:
           type: string
         description:
@@ -591,7 +698,7 @@ components:
         photos:
           type: array
           items:
-            $ref: '#/components/schemas/ProductPhoto'
+            $ref: '#/components/schemas/PhotoProduct'
 
 
     Category:
@@ -623,8 +730,6 @@ components:
         username:
           type: string
           uniqueItems: true
-        password_hash:
-          type: string
         first_name:
           type: string
         last_name:
@@ -652,6 +757,3 @@ components:
         country:
           type: string
           nullable: true
-        created_at:
-          type: string
-          format: date-time
