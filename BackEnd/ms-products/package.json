@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 delete admins; pm2 start --name admins \"npx ts-node --transpile-only src/index.ts\"",
-    "serve": "ts-node  --pretty --transpile-only src/server.ts",
+    "serve": "pm2 delete admins; pm2 start --name admins \"npx ts-node --transpile-only src/index.ts\"",
+    "start": "ts-node  --pretty --transpile-only src/server.ts",
     "dev": "nodemon src/server.ts"
   },
   "keywords": [],
@@ -18,7 +18,8 @@
     "helmet": "^7.0.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.33.0"
+    "reflect-metadata": "^0.2.1",
+    "typeorm": "^0.3.19"
   },
   "devDependencies": {
     "@types/cors": "^2.8.15",

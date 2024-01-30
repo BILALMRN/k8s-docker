@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 delete admins; pm2 start --name admins \"npx ts-node --transpile-only src/index.ts\"",
-    "serve": "ts-node  --pretty --transpile-only src/server.ts",
+    "serve": "pm2 delete admins; pm2 start --name admins \"npx ts-node --transpile-only src/index.ts\"",
+    "start": "ts-node  --pretty --transpile-only src/server.ts",
     "dev": "nodemon src/server.ts"
   },
   "keywords": [],
