@@ -6,11 +6,8 @@ import itemsRouter from "./route/route";
 
 dotenv.config();
 
-if (!process.env.PORT) {
-  throw new Error("PORT must be set");
-}
 
-const PORT: number = parseInt(process.env.PORT);
+const PORT: number = Number(process.env.PORT) || 3000;
 
 const app = express();
 

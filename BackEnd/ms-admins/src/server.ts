@@ -6,9 +6,6 @@ import itemsRouter from "./route/route";
 
 dotenv.config();
 
-if (!process.env.PORT) {
-  throw new Error("PORT environment variable is not defined");
-}
 
 const PORT: number = Number(process.env.PORT) || 3000;
 
