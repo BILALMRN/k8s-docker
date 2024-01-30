@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { AdminEntity } from "../Model/AdminEntity";
 import Joi from "joi";
-import adminService from "../Service/adminService";
 import IAdmin from "../Interface/IAccount";
+import adminService from "../Service/adminService";
 
 class AdminController {
   private adminService: IAdmin;
@@ -10,105 +10,116 @@ class AdminController {
   constructor(stockService: IAdmin) {
     this.adminService = stockService;
   }
-async  getAccount(req: Request, res: Response) {
-  try {
-    const user_id: number = parseInt(req.params.id);
+  public getAccount = async (req: Request, res: Response) => {
+    try {
+      const user_id: number = parseInt(req.params.id);
 
-    if (isNaN(user_id)) {
-      return res.status(400).send("Invalid 'id' parameter ");
-    }
-
-    const { success, account } = await this.adminService.getAccount(user_id);
-    if (success) {
-      res.status(200).send(account);
-    } else {
-      res.status(404).send("Account not found ");
-    }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-}
-
- async  loginAccountUser(req: Request, res: Response) {
-  try {
-    if (
-      !req.headers.hasOwnProperty("username") ||
-      !req.headers.hasOwnProperty("password")
-    ) {
-      return res.status(401).send("Unauthorized");
-    }
-
-    if (
-      typeof req.headers["username"] === "string" &&
-      typeof req.headers["password"] === "string"
-    ) {
-      const username = req.headers["username"];
-      const password = req.headers["password"];
-
-      const items: string = await this.adminService.loginAccount(username, password);
-
-      if (items) {
-        res.status(200).send(items);
-      } else {
-        res.status(404).send("Account not found");
+      if (isNaN(user_id)) {
+        return res.status(400).send("Invalid 'id' parameter ");
       }
-    } else {
-      res.status(400).send("Invalid headers");
+
+      const { success, account } = await this.adminService.getAccount(user_id);
+      if (success) {
+        res.status(200).send(account);
+      } else {
+        res.status(404).send("Account not found ");
+      }
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-}
+  };
 
- async  createAccount(req: Request, res: Response): Promise<void> {
-  try {
-    const item: AdminEntity = req.body;
-    const { success, account } = await this.adminService.createAccount(item);
+  public loginAccountUser = async (req: Request, res: Response) => {
+    try {
+      if (
+        !req.headers.hasOwnProperty("username") ||
+        !req.headers.hasOwnProperty("password")
+      ) {
+        return res.status(401).send("Unauthorized");
+      }
 
-    if (success) {
-      res.status(201).json(account);
-    } else {
-      res.status(500).json({ error: "Error creating account" });
+      if (
+        typeof req.headers["username"] === "string" &&
+        typeof req.headers["password"] === "string"
+      ) {
+        const username = req.headers["username"];
+        const password = req.headers["password"];
+
+        const items: string = await this.adminService.loginAccount(
+          username,
+          password
+        );
+
+        if (items) {
+          res.status(200).send(items);
+        } else {
+          res.status(404).send("Account not found");
+        }
+      } else {
+        res.status(400).send("Invalid headers");
+      }
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-  } catch (error: any) {
-    res.status(500).json({ error: "Error creating account" });
-  }
-}
+  };
 
- async updateAccount(req: Request, res: Response): Promise<void> {
-  try {
-    const item: AdminEntity = req.body;
-    const { success, account } = await this.adminService.updateAccount(item);
+  public createAccount = async (req: Request, res: Response) => {
+    try {
+      const item: AdminEntity = req.body;
+      const { success, account } = await this.adminService.createAccount(item);
 
-    if (success) {
-      res.status(204).json(account);
-    } else {
-      res.status(500).json({ error:  "Error updating account" });
+      if (success) {
+        const { admin_id, username, email } = account!; // Only necessary data
+        res.status(201).json({ admin_id, username, email });
+      } else {
+        res.status(409).json({ error: "Account already exists" });
+      }
+    } catch (error: any) {
+      console.error("Error creating account:", error.message);
+      res
+        .status(500)
+        .json({ error: "Failed to create account. Please try again later." });
     }
-  } catch (error: any) {
-    res.status(500).json({ error: "Error updating account" });
-  }
-}
+  };
 
-// DELETE /items/:id
-async deleteAccount(req: Request, res: Response) {
+  public updateAccount = async (req: Request, res: Response) => {
+    try {
+      const item: AdminEntity = req.body;
+      const { success, account } = await this.adminService.updateAccount(item);
+
+      if (success) {
+        res.status(204).json(account);
+      } else {
+        res.status(500).json({ error: "Error updating account" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: "Error updating account" });
+    }
+  };
+
+  // DELETE /items/:id
+  public deleteAccount = async (req: Request, res: Response) => {
     try {
       const admin_id: number = parseInt(req.body.admin_id);
-      if (isNaN(admin_id)) return res.status(400).send("Invalid 'id' parameter");
-  
+      if (isNaN(admin_id))
+        return res.status(400).send("Invalid 'id' parameter");
+
       await this.adminService.deleteAccount(admin_id);
-      res.sendStatus(204);
+      res.sendStatus(200);
     } catch (error: any) {
       res.status(500).send("error to delete");
     }
-  }
-
+  };
 }
 
-
 const adminController = new AdminController(adminService);
+
 export default adminController;
-  export function validateRequestBody(req: Request, res: Response, next: NextFunction) {
+export function validateRequestBody(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const schema = Joi.object({
     admin_id: Joi.number().integer().optional(),
     username: Joi.string().optional(), // Assuming it's optional, adjust as needed
@@ -132,4 +143,3 @@ export default adminController;
 
   next();
 }
-

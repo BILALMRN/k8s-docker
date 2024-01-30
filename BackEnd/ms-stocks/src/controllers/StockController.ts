@@ -9,7 +9,7 @@ class StockController {
     this.stockService = stockService;
   }
 
-  async updateStockProductUser(req: Request, res: Response) {
+  public updateStockProductUser = async (req: Request, res: Response) => {
     try {
       let product_id: number;
   
@@ -34,7 +34,7 @@ class StockController {
     }
   }
 
-  async updateStockProductAdmin(req: Request, res: Response) {
+  public updateStockProductAdmin = async (req: Request, res: Response) => {
     try {
       const product_id: number = Number(req.body.product_id);
       const newQuantity: number = Number(req.body.newStock);

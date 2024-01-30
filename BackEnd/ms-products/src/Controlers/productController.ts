@@ -9,9 +9,9 @@ class ProductController {
   constructor(ProductService: IProductService) {
     this.ProductService = ProductService;
   }
-  async getProducts(req: Request, res: Response){
+  public getProducts = async (req: Request, res: Response) => {
     try {
-      const adminUserId: number = parseInt(req.headers["i"] as string, 10);
+      const adminUserId: number = parseInt(req.headers["id"] as string, 10);
 
       if (isNaN(adminUserId)) {
         return res.status(400).send("Invalid 'i' header value");
@@ -24,9 +24,9 @@ class ProductController {
     }
   }
 
-  async getProduct(req: Request, res: Response) {
+  public getProduct = async (req: Request, res: Response) => {
     try {
-      const productId: number = parseInt(req.params.id, 1);
+      const productId: number = parseInt(req.params.id, 10);
 
       if (isNaN(productId)) {
         return res.status(400).send("Invalid 'id' parameter");
@@ -44,7 +44,7 @@ class ProductController {
     }
   }
 
-  async createProduct(req: Request, res: Response) {
+  public createProduct = async (req: Request, res: Response) => {
     try {
       const item: Product = req.body;
       const newItem: boolean = await this.ProductService.createProduct(item);
@@ -55,7 +55,7 @@ class ProductController {
     }
   }
 
-  async deleteProduct(req: Request, res: Response) {
+  public deleteProduct = async (req: Request, res: Response) => {
     try {
       const productId: number = parseInt(req.params.id, 10);
 
@@ -70,9 +70,9 @@ class ProductController {
     }
   }
 
-  async getAllAvailableProductsInStock(req: Request, res: Response) {
+  public getAllAvailableProductsInStock = async (req: Request, res: Response) => {
     try {
-      const adminId: number = parseInt(req.headers["i"] as string, 1);
+      const adminId: number = parseInt(req.headers["i"] as string, 10);
 
       if (isNaN(adminId)) {
         return res.status(400).send("Invalid 'i' header value");
@@ -85,7 +85,7 @@ class ProductController {
     }
   }
 
-  async updateProduct(req: Request, res: Response) {
+  public updateProduct = async (req: Request, res: Response) => {
     try {
       const item: Product = req.body;
       const newItem: boolean = await this.ProductService.updateProduct(item);
@@ -101,7 +101,7 @@ class ProductController {
   }
 
 
-  async searchProductFromDB(req: Request, res: Response) {
+  public searchProductFromDB = async (req: Request, res: Response) => {
     try {
       const nameProduct: string = req.params.nameProduct; // Adjust accordingly based on your route configuration
       const products: Product[] = await this.ProductService.searchProductFromDB(nameProduct);
@@ -117,7 +117,7 @@ class ProductController {
     }
   }
 
-  async getProductsParDiscount(_req: Request, res: Response) {
+  public getProductsParDiscount = async (_req: Request, res: Response) => {
     try {
       const discountedProducts: Product[] = await this.ProductService.getProductsParDiscount();
 
@@ -132,7 +132,7 @@ class ProductController {
     }
   }
 
-  async getSuggestion(req: Request, res: Response) {
+  public getSuggestion = async (req: Request, res: Response) => {
     try {
       const category: string = req.params.category; // Adjust accordingly based on your route configuration
       const suggestedProducts: Product[] = await this.ProductService.getSuggestion(category);

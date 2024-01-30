@@ -11,7 +11,7 @@ class UserController {
   constructor(accountService: IAccountService) {
     this.accountService = accountService;
   }
- async  getAccountById(req: Request, res: Response) {
+  public  getAccountById = async (req: Request, res: Response) => {
   try {
     const user_id: string = req.params.id;
 
@@ -30,7 +30,7 @@ class UserController {
   }
 }
 
- async  loginAccount(req: Request, res: Response) {
+public  loginAccount = async (req: Request, res: Response) => {
   try {
     if (!req.headers.hasOwnProperty('email') || !req.headers.hasOwnProperty('password')) {
       return res.status(400).send("Missing 'data' header");
@@ -55,7 +55,7 @@ class UserController {
   }
 }
 
- async  createAccount(req: Request, res: Response): Promise<void> {
+public  createAccount = async (req: Request, res: Response) => {
   try {
     const item: IUserDocument = req.body;
     await this.accountService.createAccount(item);
@@ -66,7 +66,7 @@ class UserController {
   }
 }
 
- async  updateAccount(req: Request, res: Response): Promise<void> {
+public  updateAccount = async (req: Request, res: Response) => {
   try {
     const item: IUserDocument = req.body;
     const result = await this.accountService.updateAccount(item);
@@ -80,7 +80,7 @@ class UserController {
   }
 }
 
- async  deleteAccount(req: Request, res: Response) {
+public  deleteAccount = async (req: Request, res: Response) => {
   try {
     if (!req.headers['id']) {
       return res.status(400).send("Missing 'id' header");
