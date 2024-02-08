@@ -24,8 +24,8 @@ class DB implements IDB {
   async updateStockProduct(product_id: number): Promise<boolean> {
     try {
       await this.pool.query(
-        "UPDATE products SET stock = (stock - 1) WHERE product_id = $1 and and stock >= 1",
-        [product_id],
+        "UPDATE products SET stock = (stock - 1) WHERE product_id = $1 AND stock >= 1",
+        [product_id]
       );
       return true;
     } catch (error) {
@@ -38,8 +38,8 @@ class DB implements IDB {
   async updateStockProductAdmin(product_id: number, quantity: number): Promise<boolean> {
     try {
       await this.pool.query(
-        "UPDATE products SET stock = $1 WHERE product_id = $2 and and stock >= 1",
-        [quantity, product_id],
+        "UPDATE products SET stock = $1 WHERE product_id = $2 AND stock >= 0",
+        [quantity, product_id]
       );
       return true;
     } catch (error) {
