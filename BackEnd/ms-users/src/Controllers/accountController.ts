@@ -15,10 +15,6 @@ class UserController {
   try {
     const user_id: string = req.params.id;
 
-    if (user_id.length < 1) {
-      return res.status(400).send("Invalid 'id' parameter ");
-    }
-
     const items: IUserDocument | null = await this.accountService.getAccount(user_id);
     if (items) {
       res.status(200).send(items);
@@ -60,7 +56,7 @@ public  createAccount = async (req: Request, res: Response) => {
     const item: IUserDocument = req.body;
     await this.accountService.createAccount(item);
 
-    res.status(201).send('create account');
+    res.status(201).send('created account(token)');
   } catch (error: any) {
     res.status(500).json(error.message);
   }
