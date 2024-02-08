@@ -5,8 +5,8 @@ import orderController from '../controllers/orderController';
 const router = express.Router();
 
 router.post('/', orderController.createOrder);
-router.put('/:orderId', orderController.updateOrderStatus);
-router.get('/:userId', orderController.getUserOrderHistory);
+router.put('/', orderController.updateOrderStatus);
+router.get('/', orderController.getUserOrderHistory);
 router.get('/adminhistory', orderController.getAllOrders);
 
 export default router;

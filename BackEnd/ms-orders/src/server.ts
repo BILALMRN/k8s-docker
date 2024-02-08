@@ -21,12 +21,13 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
+    this.server.use(express.urlencoded())
     this.server.use(cors());
     this.server.use(helmet());
   }
 
   routes() {
-    this.server.use("/v1/Order", itemsRouter);
+    this.server.use("/v1/order", itemsRouter);
   }
 }
 

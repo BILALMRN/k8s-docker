@@ -8,10 +8,9 @@ export interface ProductOrderDocument extends Document, ProductOrder {}
 
 const productOrderSchema = new Schema<ProductOrderDocument>(
   {
-    product_order_id: { type: Number, required: true, unique: true },
-    product_id: { type: Number, required: true },
-    admin_id: { type: Number, required: true },
-    user_id: { type: Number, required: true },
+    product_id: { type: String, required: true },
+    admin_id: { type: String, required: true },
+    user_id: { type: String, required: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
     created_at: { type: Date, default: Date.now },

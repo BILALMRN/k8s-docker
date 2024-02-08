@@ -31,7 +31,9 @@ class DB implements IDB {
     try {
       const newOrder = new OrderModel(order);
       await newOrder.save();
+      return newOrder.id;
     } catch (error) {
+      console.error(error);
       throw error;
     }
   }
@@ -40,28 +42,30 @@ class DB implements IDB {
     try {
       await OrderModel.findByIdAndUpdate(orderId, { status });
     } catch (error) {
+      console.error(error);
       throw error;
     }
   }
 
-  async getUserOrderHistory(userId: string): Promise<ProductOrder[]> {
+  async getUserOrderHistory(user_id: string): Promise<ProductOrder[]> {
     try {
-      const orders = await OrderModel.find({ userId });
+      const orders = await OrderModel.find({ user_id : user_id});
       return orders;
     } catch (error) {
-      throw error;
+      console.error('Error occurred while fetching orders:', error);
+      return [];
     }
   }
 
-  async getAllOrders(): Promise<ProductOrder[]> {
+  async getAllOrders(admin_id : string): Promise<ProductOrder[]> {
     try {
-      const orders = await OrderModel.find();
+      const orders = await OrderModel.find({admin_id : admin_id});
       return orders;
     } catch (error) {
-      throw error;
+      console.error('Error occurred while fetching orders:', error);
+      return [];
     }
   }
 }
-
 const DataBase = new DB();
 export default DataBase;

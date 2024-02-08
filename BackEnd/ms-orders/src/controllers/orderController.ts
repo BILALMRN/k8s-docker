@@ -14,7 +14,7 @@ class OrderController {
 
   public createOrder = async (req: Request, res: Response) => {
     try {
-      const orderData = req.body as ProductOrder;
+      const orderData : ProductOrder = req.body as ProductOrder;
       await this.OrderService.createOrder(orderData);
       res.status(201).send('Order created successfully');
     } catch (error) {
@@ -25,7 +25,11 @@ class OrderController {
 
   public updateOrderStatus = async (req: Request, res: Response) => {
     try {
-      const { status,orderId } = req.body;
+      const { status, orderId } = req.body;
+      if (!status || !orderId) {
+        res.status(400).send('Invalid status or orderId');
+        return;
+      }
       await this.OrderService.updateOrderStatus(orderId, status);
       res.send('Order status updated successfully');
     } catch (error) {
@@ -35,23 +39,39 @@ class OrderController {
   }
 
   public getUserOrderHistory = async (req: Request, res: Response) => {
+    const userId = req.query.user_Id;
+    if(!userId){
+      res.status(404).send('No id found');
+      return;
+    }
     try {
-      const userId = req.params.userId;
-      const userOrders = await this.OrderService.getUserOrderHistory(userId);
-      res.json(userOrders);
+      const userOrders = await this.OrderService.getUserOrderHistory(userId as string );
+      if (userOrders.length === 0) {
+        res.status(404).send('No orders found for this user');
+      } else {
+        res.status(200).json(userOrders);
+      }
     } catch (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      res.status(500).send('An error occurred while retrieving user order history');
     }
   }
 
-  public getAllOrders = async (_req: Request, res: Response) => {
+  public getAllOrders = async (req: Request, res: Response) => {
     try {
-      const allOrders = await this.OrderService.getAllOrders();
-      res.json(allOrders);
+      const admin_id = req.query.admin_Id;
+      if(!admin_id){
+        res.status(404).send('No id found');
+      }
+      const allOrders = await this.OrderService.getAllOrders(admin_id as string);
+      if (allOrders.length === 0) {
+        res.status(404).send('No orders found');
+      } else {
+        res.json(allOrders);
+      }
     } catch (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      res.status(500).send('Error retrieving all orders');
     }
   }
 }
