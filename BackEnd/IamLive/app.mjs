@@ -11,4 +11,4 @@ const app = express();
 app.use(swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use((req, res) => res.send(true));
 
-app.listen(3001);
+app.listen(3000);

@@ -7,6 +7,7 @@ info:
 servers:
   - url: https://api.localhost/v1
   - url: http://api.localhost:81/v1
+  - url: http://localhost:3000/v1
 tags:
   - name: Admin
     description: Everything about your Admin
@@ -25,6 +26,12 @@ paths:
         - Product
       summary: Get all products
       operationId: getProducts
+      parameters:
+        - name: admin_id
+          in: header
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -52,8 +59,24 @@ paths:
           description: Created
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
+              example:
+                isCreated: true
+    
+    put:
+      tags:
+        - Product
+      summary: update product
+      operationId: updateProduct
+      requestBody:
+        description: Product details updated (true/false)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: updated
 
   /product/{id}:
     get:
@@ -80,19 +103,21 @@ paths:
     delete:
       tags:
         - Product
-      summary: Delete a product by ID
+      summary: Delete a product
       operationId: deleteProduct
       parameters:
         - name: id
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '204':
           description: No Content
-        '404':
-          description: Not Found
+        '400':
+          description: Invalid 'id' parameter
+        '500':
+          description: Internal Server Error
 
   /product/inStock:
     get:
@@ -100,6 +125,12 @@ paths:
         - Product
       summary: Get all available products in stock
       operationId: getAllAvailableProductsInStock
+      parameters:
+        - name: admin_id
+          in: header
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -140,6 +171,12 @@ paths:
         - Product
       summary: Get products with discount
       operationId: getProductsParDiscount
+      parameters:
+        - name: discount_price
+          in: header
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -175,6 +212,7 @@ paths:
                   $ref: '#/components/schemas/Product'
         '404':
           description: No suggested products found
+
 
   #####        
   /admin/{id}:
@@ -302,9 +340,9 @@ paths:
 
 
 
-  /Order:
+  /order:
     post:
-      tags: 
+      tags:
         - Order
       summary: Create a new order
       operationId: createOrder
@@ -320,18 +358,13 @@ paths:
           description: Created
         '500':
           description: Internal Server Error
+  
 
     put:
-      tags: 
+      tags:
         - Order
       summary: Update order status by order ID
       operationId: updateOrderStatus
-      parameters:
-        - name: orderId
-          in: path
-          required: true
-          schema:
-            type: string
       requestBody:
         description: Updated order status
         required: true
@@ -342,22 +375,27 @@ paths:
               properties:
                 status:
                   type: string
+                orderId:
+                  type: string
               required:
                 - status
+                - orderId
       responses:
         '200':
           description: OK
+        '400':
+          description: Invalid status or orderId
         '500':
           description: Internal Server Error
 
     get:
-      tags: 
+      tags:
         - Order
       summary: Get user order history by user ID
       operationId: getUserOrderHistory
       parameters:
-        - name: userId
-          in: path
+        - name: user_Id
+          in: query
           required: true
           schema:
             type: string
@@ -372,13 +410,19 @@ paths:
                   $ref: '#/components/schemas/ProductOrder'
         '500':
           description: Internal Server Error
-
-  /Order/adminhistory:
+    
+  /order/adminhistory:
     get:
-      tags: 
+      tags:
         - Order
       summary: Get all orders (admin)
       operationId: getAllOrders
+      parameters:
+        - name: admin_Id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -388,8 +432,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ProductOrder'
+        '404':
+          description: No orders found
         '500':
-          description: Internal Server Error
+          description: Error retrieving all orders
 
 
 
@@ -397,34 +443,30 @@ paths:
     put:
       tags:
         - Stock
-      summary: Update stock for a product (user)
+      summary: Update stock for a product by user
       operationId: updateStockProductUser
-      requestBody:
-        description: Product details for stock update (user)
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                product_id:
-                  type: number
-              required:
-                - product_id
+      parameters:
+        - name: product_id
+          in: header
+          required: true
+          schema:
+            type: number
       responses:
         '201':
           description: Stock updated successfully
         '400':
-          description: Invalid input or product_id
+          description: Bad Request - Invalid product_id
+        '500':
+          description: Internal Server Error
 
   /stock/admin:
     put:
       tags:
         - Stock
-      summary: Update stock for a product (admin)
+      summary: Update stock for a product by admin
       operationId: updateStockProductAdmin
       requestBody:
-        description: Product details for stock update (admin)
+        description: Product details
         required: true
         content:
           application/json:
@@ -442,7 +484,9 @@ paths:
         '201':
           description: Stock updated successfully
         '400':
-          description: Invalid input or product_id
+          description: Bad Request - Invalid input
+        '500':
+          description: Internal Server Error
 
 
   /user/{id}:
@@ -460,17 +504,16 @@ paths:
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
 
-  /user/login:
-    post:
+  /user:
+    get:
       tags:
         - User
-      summary: Log in to the account
+      summary: Login to an account
       operationId: loginAccount
+      responses:
+        '200':
+          description: OK
       parameters:
         - name: email
           in: header
@@ -482,21 +525,11 @@ paths:
           required: true
           schema:
             type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-        '404':
-          description: Account not found
-        '400':
-          description: Invalid headers
-        '500':
-          description: Internal Server Error
+    requestBody:
+      description: Empty request body
+      required: false
+      content: {}
 
-  /user:
     post:
       tags:
         - User
@@ -554,7 +587,6 @@ paths:
           description: Bad Request
         '500':
           description: Internal Server Error
-
 
 
 components:
@@ -675,7 +707,7 @@ components:
       properties:
         product_id:
           type: number
-        admin:
+        admin_id:
           type: number
         name_product:
           type: string
@@ -688,7 +720,7 @@ components:
         main_photo:
           type: string
         category:
-          $ref: '#/components/schemas/Category'
+          type: string
         created_at:
           type: string
           format: date-time
@@ -696,31 +728,29 @@ components:
           type: string
           format: date-time
         photos:
-          type: array
-          items:
-            $ref: '#/components/schemas/PhotoProduct'
-
-
-    Category:
-      type: object
-      properties:
-        category_id:
-          type: number
-        name:
-          type: string
-        description:
           type: string
 
-    PhotoProduct:
-      type: object
-      properties:
-        id:
-          type: number
-          nullable: true
-        product:
-          $ref: '#/components/schemas/Product'
-        url:
-          type: string
+
+    # Category:
+    #   type: object
+    #   properties:
+    #     category_id:
+    #       type: number
+    #     name:
+    #       type: string
+    #     description:
+    #       type: string
+
+    # PhotoProduct:
+    #   type: object
+    #   properties:
+    #     id:
+    #       type: number
+    #       nullable: true
+    #     product:
+    #       $ref: '#/components/schemas/Product'
+    #     url:
+    #       type: string
 
     Admin:
       type: object
