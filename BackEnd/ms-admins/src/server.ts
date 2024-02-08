@@ -21,6 +21,7 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
+    this.server.use(express.urlencoded());
     this.server.use(cors());
     this.server.use(helmet());
   }
