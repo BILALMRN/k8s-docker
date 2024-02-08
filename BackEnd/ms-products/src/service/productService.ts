@@ -14,8 +14,8 @@ class ProductService implements IProductService {
     return await this.database.createProduct(product);
   }
 
-  async deleteProduct(product_id: number): Promise<void> {
-    if (!Number.isInteger(product_id) || product_id <= 0) {
+  async deleteProduct(product_id: number): Promise<boolean> {
+    if (!product_id) {
       throw new Error("Invalid product_id");
     }
     try {
@@ -27,7 +27,7 @@ class ProductService implements IProductService {
   }
 
   async getProduct(product_id: number): Promise<Product> {
-    if (!Number.isInteger(product_id) || product_id <= 0) {
+    if (!product_id) {
       throw new Error("Invalid product_id");
     }
     try {
@@ -39,7 +39,7 @@ class ProductService implements IProductService {
   }
 
   async getProducts(adminUSer_id: number): Promise<Product[]> {
-    if (!Number.isInteger(adminUSer_id) || adminUSer_id <= 0) {
+    if (!adminUSer_id) {
       throw new Error("Invalid adminUSer_id");
     }
     try {
@@ -51,7 +51,7 @@ class ProductService implements IProductService {
   }
 
   async getAllAvailableProductsInStock(admin_id: number): Promise<Product[]> {
-    if (!Number.isInteger(admin_id) || admin_id <= 0) {
+    if (!admin_id ) {
       throw new Error("Invalid admin_id");
     }
     try {
@@ -81,9 +81,9 @@ class ProductService implements IProductService {
     }
   }
 
-  async getProductsParDiscount(): Promise<Product[]> {
+  async getProductsParDiscount(discountPrice: number): Promise<Product[]> {
     try {
-      return await this.database.getProductsParDiscount();
+      return await this.database.getProductsParDiscount(discountPrice);
     } catch (error) {
       console.error(error);
       throw error;

@@ -1,41 +1,41 @@
 // Product Entity
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import  { AdminEntity }  from './Admin';
-import { Category } from './Category';
-import { PhotoProduct } from './ProductPhoto';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn} from 'typeorm';
 
 @Entity("products")
 export default class Product {
-    @PrimaryGeneratedColumn()
-    product_id!: number;
+  @PrimaryGeneratedColumn()
+  product_id!: number;
 
-    @ManyToOne(() => AdminEntity, adminEntity => adminEntity.admin_id)
-    admin!: AdminEntity;
+  @Column()
+  admin_id!: number;
 
-    @Column()
-    name_product!: string;
+  @Column()
+  name_product!: string;
 
-    @Column()
-    description!: string;
+  @Column()
+  description!: string;
 
-    @Column()
-    price!: number;
+  @Column('double precision') // Change data type to double precision
+  price!: number;
 
-    @Column()
-    stock!: number;
+  @Column({default: 0})
+  discountPrice?: number;
 
-    @Column()
-    main_photo!: string;
+  @Column()
+  stock!: number;
 
-    @ManyToOne(() => Category)
-    category!: Category;
+  @Column({default: 0})
+  main_photo!: string;
 
-    @Column()
-    created_at?: Date;
+  @Column()
+  category!: string;
 
-    @Column()
-    updated_at?: Date;
+  @CreateDateColumn()
+  created_at?: Date;
 
-    @OneToMany(() => PhotoProduct, photo => photo.product)
-    photos!: PhotoProduct[];
+  @CreateDateColumn()
+  updated_at?: Date;
+
+  @Column()
+  photos!: string;
 }

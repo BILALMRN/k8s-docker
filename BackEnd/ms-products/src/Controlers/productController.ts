@@ -11,13 +11,13 @@ class ProductController {
   }
   public getProducts = async (req: Request, res: Response) => {
     try {
-      const adminUserId: number = parseInt(req.headers["id"] as string, 10);
+      const adminId: number =Number(req.headers["admin_id"] as string);
 
-      if (isNaN(adminUserId)) {
-        return res.status(400).send("Invalid 'i' header value");
+      if (!adminId) {
+        return res.status(400).send("Invalid 'admin_id' header value");
       }
 
-      const items: Product[] = await this.ProductService.getProducts(adminUserId);
+      const items: Product[] = await this.ProductService.getProducts(adminId);
       res.status(200).send(items);
     } catch (error: any) {
       res.status(500).send("fail getProducts");
@@ -26,9 +26,9 @@ class ProductController {
 
   public getProduct = async (req: Request, res: Response) => {
     try {
-      const productId: number = parseInt(req.params.id, 10);
+      const productId: number =Number(req.params.id);
 
-      if (isNaN(productId)) {
+      if (!(productId)) {
         return res.status(400).send("Invalid 'id' parameter");
       }
 
@@ -46,7 +46,7 @@ class ProductController {
 
   public createProduct = async (req: Request, res: Response) => {
     try {
-      const item: Product = req.body;
+      const item: Product = req.body as Product;
       const newItem: boolean = await this.ProductService.createProduct(item);
 
       res.status(201).send(newItem);
@@ -55,16 +55,28 @@ class ProductController {
     }
   }
 
+  public updateProduct = async (req: Request, res: Response) => {
+    try {
+      const item: Product = req.body;
+      const isUpdate: boolean = await this.ProductService.updateProduct(item);
+
+      res.status(200).send(isUpdate);
+    } catch (error: any) {
+      res.status(500).send("fail update");
+    }
+  }
+
+  
   public deleteProduct = async (req: Request, res: Response) => {
     try {
-      const productId: number = parseInt(req.params.id, 10);
+      const productId: number =Number(req.params.id);
 
-      if (isNaN(productId)) {
+      if (!(productId)) {
         return res.status(400).send("Invalid 'id' parameter");
       }
 
-      await this.ProductService.deleteProduct(productId);
-      res.sendStatus(204);
+      const isDelete: boolean = await this.ProductService.deleteProduct(productId);
+      res.status(204).send(isDelete);
     } catch (error: any) {
       res.status(500).send("fail delete");
     }
@@ -72,31 +84,21 @@ class ProductController {
 
   public getAllAvailableProductsInStock = async (req: Request, res: Response) => {
     try {
-      const adminId: number = parseInt(req.headers["i"] as string, 10);
-
-      if (isNaN(adminId)) {
-        return res.status(400).send("Invalid 'i' header value");
+      const adminId: number = Number(req.headers["admin_id"] as string);
+      if (!(adminId)) {
+        return res.sendStatus(400);
       }
 
       const items: Product[] = await this.ProductService.getAllAvailableProductsInStock(adminId);
-      res.status(200).send(items);
-    } catch (error: any) {
-      res.status(500).send("fail getAllAvailableProductsInStock");
-    }
-  }
 
-  public updateProduct = async (req: Request, res: Response) => {
-    try {
-      const item: Product = req.body;
-      const newItem: boolean = await this.ProductService.updateProduct(item);
-
-      if (!newItem) {
-        return res.status(404).send("Item not found");
+      if (items.length === 0) {
+        return res.status(404).send("No available products in stock");
       }
 
-      res.status(200).send(item);
+      res.status(200).send(items);
     } catch (error: any) {
-      res.status(500).send("fail update");
+      console.error(error);
+      res.status(500).send("Failed to retrieve available products in stock");
     }
   }
 
@@ -117,9 +119,14 @@ class ProductController {
     }
   }
 
-  public getProductsParDiscount = async (_req: Request, res: Response) => {
+  public getProductsParDiscount = async (req: Request, res: Response) => {
     try {
-      const discountedProducts: Product[] = await this.ProductService.getProductsParDiscount();
+      const discountPrice: number = Number(req.headers["discount_price"]?.toString());
+      if (!(discountPrice)) {
+        console.log(discountPrice);
+        return res.sendStatus(400);
+      }
+      const discountedProducts: Product[] = await this.ProductService.getProductsParDiscount(discountPrice);
 
       if (discountedProducts.length === 0) {
         return res.status(404).send("No products found");

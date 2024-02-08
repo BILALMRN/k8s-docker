@@ -1,12 +1,9 @@
 import "reflect-metadata";
-import { DataSource, Repository, MoreThan } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 
 import Product from '../Models/Product';
 import * as dotenv from 'dotenv';
 import IDB from "../Interface/IDB";
-import { AdminEntity } from "../Models/Admin";
-import { Category } from "../Models/Category";
-import { PhotoProduct } from "../Models/ProductPhoto";
 
 dotenv.config();
 class DB implements IDB {
@@ -17,7 +14,7 @@ class DB implements IDB {
     this.connection = new DataSource({
       type: 'postgres',
       url: process.env.CONNECTION_STRING_POSTGRES_SQL,
-      entities: [Product,AdminEntity,Category,PhotoProduct],
+      entities: [Product],
       synchronize: true,
     });
     this.connection.initialize()
@@ -41,9 +38,10 @@ class DB implements IDB {
     }
   }
 
-  async deleteProduct(product_id: number): Promise<void> {
+  async deleteProduct(product_id: number): Promise<boolean> {
     try {
       await this.productRepository.delete(product_id);
+      return true;
     } catch (error) {
       console.error('Error deleting product', error);
       throw error;
@@ -52,10 +50,10 @@ class DB implements IDB {
 
   async getProduct(product_id: number): Promise<Product> {
     try {
-      if (!Number.isInteger(product_id) || product_id <= 0) {
+      if (!product_id) {
         throw new Error('Invalid product_id');
       }
-      const product = await this.productRepository.find({ where:{ product_id: product_id }});
+      const product = await this.productRepository.find({ where: {product_id:product_id }});
       if (!product) {
         return new Product();
       }
@@ -68,20 +66,9 @@ class DB implements IDB {
 
   async getProducts(admin_id: number): Promise<Product[]> {
     try {
-      return await this.productRepository.find({ where: {  admin: { admin_id: admin_id } } });
+      return await this.productRepository.find({ where: { admin_id: admin_id }});
     } catch (error) {
       console.error('Error retrieving products', error);
-      throw error;
-    }
-  }
-
-  async getAllAvailableProductsInStock(admin_id: number): Promise<Product[]> {
-    try {
-      return await this.productRepository.find({
-        where: { admin: { admin_id: admin_id }, stock: MoreThan(0) },
-      });
-    } catch (error) {
-      console.error('Error retrieving available products in stock', error);
       throw error;
     }
   }
@@ -96,6 +83,26 @@ class DB implements IDB {
     }
   }
 
+  async getAllAvailableProductsInStock(admin_id: number): Promise<Product[]> {
+    try {
+      if (!admin_id) {
+        throw new Error('Invalid admin_id');
+      }
+  
+      const products = await this.productRepository.createQueryBuilder('product')
+        .where("product.admin_id = :id AND product.stock >= :stock", { id: admin_id, stock: 1 })
+        .getMany();
+      if (products.length === 0) {
+          return []; // Return an empty array when no products are found
+        }
+      return products;
+    } catch (error) {
+      console.error('Error retrieving available products in stock', error);
+      throw error;
+    }
+  }
+  
+
 
 
   async searchProductFromDB(nameProduct: string): Promise<Product[]> {
@@ -103,7 +110,9 @@ class DB implements IDB {
       const products = await this.productRepository.createQueryBuilder('product')
         .where("product.name_product LIKE :name OR product.description LIKE :description", { name: `%${nameProduct}%`, description: `%${nameProduct}%` })
         .getMany();
-  
+      if (products.length === 0) {
+          return []; // Return an empty array when no products are found
+        }
       return products;
     } catch (error) {
       console.error('Error searching for products', error);
@@ -111,12 +120,20 @@ class DB implements IDB {
     }
   }
 
-  async getProductsParDiscount(): Promise<Product[]> {
+  async getProductsParDiscount(discountPrice: number): Promise<Product[]> {
     try {
+      if (!discountPrice) {
+        throw new Error('Invalid admin_id');
+      }
       const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.price < :price", { price: 100 })
+        .where("product.discountPrice <= :discountPrice AND product.stock > 1", { discountPrice: discountPrice })
+        .limit(15)
         .getMany();
-  
+
+      if (products.length === 0) {
+        return []; // Return an empty array when no products are found
+      }
+
       return products;
     } catch (error) {
       console.error('Error retrieving discounted products', error);
@@ -127,7 +144,7 @@ class DB implements IDB {
   async getSuggestion(category: string): Promise<Product[]> {
     try {
       const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.description LIKE :description OR product.category.name LIKE :category", { description: `%${category}%`, category })
+        .where("product.description LIKE :description OR product.category LIKE :category", { description: `%${category}%`, category })
         .limit(10)
         .getMany();
   

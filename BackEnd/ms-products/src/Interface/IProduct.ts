@@ -2,7 +2,7 @@ import Product from "../Models/Product";
 
 interface IProductService {
   createProduct(product: Product): Promise<boolean>;
-  deleteProduct(product_id: number): Promise<void>;
+  deleteProduct(product_id: number): Promise<boolean>;
   getProduct(product_id: number): Promise<Product>;
   getProducts(adminUSer_id: number): Promise<Product[]>;
   //
@@ -11,7 +11,7 @@ interface IProductService {
 
   searchProductFromDB(nameProduct: string): Promise<Product[]> ;
   getSuggestion(category: string): Promise<Product[]>;
-  getProductsParDiscount(): Promise<Product[]> 
+  getProductsParDiscount(discountPrice: number): Promise<Product[]> 
 }
 
 export default IProductService;

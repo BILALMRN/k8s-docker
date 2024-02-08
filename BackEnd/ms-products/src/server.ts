@@ -11,9 +11,6 @@ const PORT: number = Number(process.env.PORT) || 3000;
 
 const app = express();
 
-app.use(cors());
-app.use(helmet());
-app.use(express.json());
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 class App {
@@ -28,6 +25,9 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
+    this.server.use(express.urlencoded())
+    this.server.use(cors());
+    this.server.use(helmet());
   }
 
   routes() {
