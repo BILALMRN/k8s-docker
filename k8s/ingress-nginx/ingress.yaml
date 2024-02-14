@@ -1,0 +1,58 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce-ingress
+  namespace: ecommerce
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx  
+  rules:
+    - host: api.localhost  
+      http:
+        paths:
+          - path: /v1/admin
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-admins-service
+                port:
+                  number: 3000
+          - path: /v1/user
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-users-service
+                port:
+                  number: 3000
+          - path: /v1/stack
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-stacks-service
+                port:
+                  number: 3000
+          - path: /v1/order
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-orders-service
+                port:
+                  number: 3000
+          - path: /v1/product
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-products-service
+                port:
+                  number: 3000
+    - host: localhost 
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-iam-live-service
+                port:
+                  number: 3000
