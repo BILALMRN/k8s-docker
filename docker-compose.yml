@@ -1,0 +1,94 @@
+version: "3.1"
+
+services:
+
+  #database 
+  databasePostgres:
+    image: postgres:16.0-alpine3.18
+    container_name: databasePostgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: ecommerce  # Specify the name of the default database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  databaseMongo:
+    image : mongo
+    container_name: databaseMongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+       - mongo_data:/data/db
+
+# backend
+  iamlive:
+    build:
+      context: ./BackEnd/IamLive/
+    image: ms-iamlive
+    container_name: ms-iamlive
+    ports:
+      - "3000:3000"
+    depends_on:
+      databasePostgres : 
+        condition: service_started 
+  admins:
+    build:
+      context: ./BackEnd/ms-admins/
+    image: ms-admins
+    container_name: ms-admin
+    ports:
+      - "3001:3000"
+
+  products:
+    build:
+      context: ./BackEnd/ms-products/
+      dockerfile: Dockerfile
+    image:  ms-products
+    container_name: ms-products
+    ports:
+      - "3002:3000"
+    depends_on:
+      databasePostgres : 
+        condition: service_started
+
+  stocks:
+    build:
+      context: ./BackEnd/ms-stocks/
+      dockerfile: Dockerfile
+    image:  ms-stocks
+    container_name: ms-stocks
+    ports:
+      - "3003:3000"
+    depends_on:
+      databasePostgres : 
+        condition: service_started
+  users:
+    build:
+        context: ./BackEnd/ms-users/
+        dockerfile: Dockerfile
+    image:  ms-users
+    container_name: ms-users
+    ports:
+      - "3004:3000"
+    depends_on:
+      databaseMongo : 
+        condition: service_started
+  orders:
+    build:
+      context: ./BackEnd/ms-orders/
+      dockerfile: Dockerfile
+    image:  ms-orders
+    container_name: ms-orders
+    ports:
+      - "3005:3000"
+    depends_on:
+      databasePostgres : 
+        condition: service_started
+
+volumes:
+  postgres_data:
+  mongo_data:    
