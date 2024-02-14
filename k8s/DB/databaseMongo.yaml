@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "database-mongo-service"
+  namespace: ecommerce
+spec:
+  selector:
+    app: database-mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+  # clusterIP: None
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+  namespace: ecommerce
+spec:
+  selector:
+    matchLabels:
+      app: database-mongo
+  serviceName: "database-mongo-service"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: database-mongo
+    spec:
+      containers:
+      - name: mongo-container
+        image: localhost:5001/mongo
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: db-data
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 250Mi  # Adjust the storage size as needed
+
+
+
+
+# ---
+
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: deny-external-database-mongo
+#   namespace: ecommerce
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: database-mongo
+#   ingress:
+#   - from:
+#     - namespaceSelector:
+#         matchLabels:
+#           purpose: internal
+#   egress:
+#   - to:
+#     - ipBlock:
+#         cidr: 0.0.0.0/0
