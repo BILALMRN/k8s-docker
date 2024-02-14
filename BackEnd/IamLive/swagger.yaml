@@ -238,7 +238,7 @@ paths:
                 email: admin1@example.com
 
   /admin/login:
-    post:
+    get:
       tags:
         - Admin
       summary: Log in to the admin account
