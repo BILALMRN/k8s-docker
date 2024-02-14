@@ -1,0 +1,50 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-admin-deployment
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "ms-admins"
+  template:
+    metadata:
+      labels:
+        app: "ms-admins"
+    spec:
+      containers:
+      - name: ms-admins-container
+        image: localhost:5001/ms-admins:latest
+        env:
+          - name: CONNECTION_STRING_POSTGRES_SQL
+            valueFrom:
+              configMapKeyRef:
+                name: ecommerce-configmap
+                key: POSTGRES_URI
+              
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-admins-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: "ms-admins"
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

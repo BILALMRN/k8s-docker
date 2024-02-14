@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-products-deployment
+  namespace: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "ms-products"
+  template:
+    metadata:
+      labels:
+        app: "ms-products"
+    spec:
+      containers:
+      - name: ms-products-container
+        image: localhost:5001/ms-products:latest
+        env:
+          - name: CONNECTION_STRING_POSTGRES_SQL
+            valueFrom:
+              configMapKeyRef:
+                name: ecommerce-configmap
+                key: POSTGRES_URI
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-products-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: "ms-products"
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

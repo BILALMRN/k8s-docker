@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-orders-deployment
+  namespace: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "ms-orders"
+  template:
+    metadata:
+      labels:
+        app: "ms-orders"
+    spec:
+      containers:
+      - name: ms-orders-container
+        image: localhost:5001/ms-orders:latest
+        env:
+          - name: DB_URL
+            valueFrom:
+              configMapKeyRef:
+                name: ecommerce-configmap
+                key: MONGO_URI_ORDER
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-orders-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: "ms-orders"
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

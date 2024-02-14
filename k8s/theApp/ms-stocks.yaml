@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-stacks-deployment
+  namespace: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "ms-stacks"
+  template:
+    metadata:
+      labels:
+        app: "ms-stacks"
+    spec:
+      containers:
+      - name: ms-stacks-container
+        image: localhost:5001/ms-stocks:latest
+        env:
+          - name: CONNECTION_STRING_POSTGRES_SQL
+            valueFrom:
+              configMapKeyRef:
+                name: ecommerce-configmap
+                key: POSTGRES_URI_STOCK
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-stacks-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: "ms-stacks"
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
