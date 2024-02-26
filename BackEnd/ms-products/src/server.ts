@@ -9,9 +9,7 @@ dotenv.config();
 
 const PORT: number = Number(process.env.PORT) || 3000;
 
-const app = express();
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 class App {
   public server;
@@ -24,15 +22,18 @@ class App {
   }
 
   middlewares() {
-    this.server.use(express.json());
-    this.server.use(express.urlencoded())
     this.server.use(cors());
     this.server.use(helmet());
+    this.server.use(express.json());
+    this.server.use(express.urlencoded())
+    
   }
 
   routes() {
-    app.use("/v1/product", itemsRouter);
+    this.server.use("/v1/product", itemsRouter);
   }
 }
 
-export default new App().server;
+
+const app = new App();
+app.server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -30,6 +30,9 @@ class DB implements IDB {
 
   async createProduct(product: Product): Promise<boolean> {
     try {
+      if (!product) {
+        throw new Error('Product is undefined');
+      }
       await this.productRepository.save(product);
       return true;
     } catch (error) {
@@ -90,7 +93,7 @@ class DB implements IDB {
       }
   
       const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.admin_id = :id AND product.stock >= :stock", { id: admin_id, stock: 1 })
+        .where("admin_id = :id AND stock >= :stock", { id: admin_id, stock: 1 })
         .getMany();
       if (products.length === 0) {
           return []; // Return an empty array when no products are found
@@ -107,8 +110,8 @@ class DB implements IDB {
 
   async searchProductFromDB(nameProduct: string): Promise<Product[]> {
     try {
-      const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.name_product LIKE :name OR product.description LIKE :description", { name: `%${nameProduct}%`, description: `%${nameProduct}%` })
+      const products = await this.productRepository.createQueryBuilder('products')
+        .where("name_product LIKE :name OR description LIKE :description", { name: `%${nameProduct}%`, description: `%${nameProduct}%` })
         .getMany();
       if (products.length === 0) {
           return []; // Return an empty array when no products are found
@@ -125,8 +128,8 @@ class DB implements IDB {
       if (!discountPrice) {
         throw new Error('Invalid admin_id');
       }
-      const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.discountPrice <= :discountPrice AND product.stock > 1", { discountPrice: discountPrice })
+      const products = await this.productRepository.createQueryBuilder('products')
+        .where("discountPrice <= :discountPrice AND stock > 1", { discountPrice: discountPrice })
         .limit(15)
         .getMany();
 
@@ -143,8 +146,8 @@ class DB implements IDB {
 
   async getSuggestion(category: string): Promise<Product[]> {
     try {
-      const products = await this.productRepository.createQueryBuilder('product')
-        .where("product.description LIKE :description OR product.category LIKE :category", { description: `%${category}%`, category })
+      const products = await this.productRepository.createQueryBuilder('products')
+        .where("description LIKE :description OR category LIKE :category", { description: `%${category}%`, category })
         .limit(10)
         .getMany();
   
